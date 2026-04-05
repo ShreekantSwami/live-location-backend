@@ -165,6 +165,41 @@ app.get("/places/details", async (req, res) => {
   }
 });
 
+app.get("/routes/drive", async (req, res) => {
+  const fromLat = Number(req.query.fromLat);
+  const fromLng = Number(req.query.fromLng);
+  const toLat = Number(req.query.toLat);
+  const toLng = Number(req.query.toLng);
+
+  if (![fromLat, fromLng, toLat, toLng].every((v) => Number.isFinite(v))) {
+    return res.status(400).json({ message: "fromLat, fromLng, toLat, toLng must be numbers" });
+  }
+
+  try {
+    const url =
+      `https://router.project-osrm.org/route/v1/driving/` +
+      `${fromLng},${fromLat};${toLng},${toLat}?overview=full&geometries=geojson`;
+
+    const response = await fetch(url);
+    if (!response.ok) {
+      const body = await response.text();
+      return res.status(502).json({ message: "Route request failed", details: body });
+    }
+
+    const data = await response.json();
+    const route = data?.routes?.[0];
+    const coordinates = Array.isArray(route?.geometry?.coordinates)
+      ? route.geometry.coordinates
+      : [];
+    const durationSec = typeof route?.duration === "number" ? route.duration : null;
+    const distanceMeters = typeof route?.distance === "number" ? route.distance : null;
+
+    return res.json({ coordinates, durationSec, distanceMeters });
+  } catch (error) {
+    return res.status(500).json({ message: "Route request failed", error: String(error) });
+  }
+});
+
 const io = new Server(httpServer, {
   cors: {
     origin: FRONTEND_ORIGINS,
