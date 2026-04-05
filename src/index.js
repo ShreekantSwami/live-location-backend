@@ -7,7 +7,7 @@ import { Server } from "socket.io";
 const app = express();
 const httpServer = createServer(app);
 
-const FRONTEND_ORIGINS = (process.env.FRONTEND_ORIGIN || "http://localhost:3001,http://localhost:3000")
+const FRONTEND_ORIGINS = (process.env.FRONTEND_ORIGIN || "http://localhost:3001,http://localhost:3000,https://sds-live-location.vercel.app")
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
