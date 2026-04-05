@@ -185,6 +185,7 @@ io.on("connection", (socket) => {
       lat: null,
       lng: null,
       accuracy: null,
+      speed: null,
       lastSeen: Date.now()
     });
     io.to(roomId).emit("room:state", {
@@ -194,7 +195,7 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("location:update", ({ roomId, userId, lat, lng, accuracy }) => {
+  socket.on("location:update", ({ roomId, userId, lat, lng, accuracy, speed }) => {
     if (!roomId || !userId) return;
     if (typeof lat !== "number" || typeof lng !== "number") return;
     const room = getOrCreateRoom(roomId);
@@ -204,6 +205,7 @@ io.on("connection", (socket) => {
       lat,
       lng,
       accuracy: typeof accuracy === "number" ? accuracy : null,
+      speed: typeof speed === "number" ? speed : null,
       lastSeen: Date.now()
     };
     room.users.set(userId, updated);
